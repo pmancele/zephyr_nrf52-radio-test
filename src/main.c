@@ -10,6 +10,7 @@
 #include "radio_test.h"
 #include "radio_cmd.c"
 #include <zephyr/shell/shell.h>
+#include <zephyr/drivers/gpio.h>
 
 static void clock_init(void)
 {
@@ -49,12 +50,21 @@ int main(void)
 
 	clock_init();
 
+	// toggle leds
+	const struct gpio_dt_spec led0 = GPIO_DT_SPEC_GET(DT_ALIAS(led0), gpios);
+	gpio_pin_configure_dt(&led0, GPIO_OUTPUT_ACTIVE);
+	const struct gpio_dt_spec led1 = GPIO_DT_SPEC_GET(DT_ALIAS(led1), gpios);
+	gpio_pin_configure_dt(&led1, GPIO_OUTPUT_ACTIVE);
+	const struct gpio_dt_spec led2 = GPIO_DT_SPEC_GET(DT_ALIAS(led2), gpios);
+	gpio_pin_configure_dt(&led2, GPIO_OUTPUT_ACTIVE);
+
 	k_sleep(K_SECONDS(2));
 
 	struct shell *shell = shell_backend_uart_get_ptr();
 	char *argv[] = {"start_channel", "20"};
 	cmd_start_channel_set(shell, 2, argv);
-	char *argv2[] = {"stop_channel"};
+	char *argv2[] = {"start_tx_carrier"};
+	cmd_tx_carrier_start(shell, 1, argv2);
 
 	// print alive every seconds
 	// while (1) {
